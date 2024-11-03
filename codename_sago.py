@@ -73,7 +73,7 @@ def save_rooms(rooms):
 
 def is_valid_date_range(check_in, check_out):
     try:
-       
+        
         check_in_date = datetime.strptime(check_in, "%Y-%m-%d")
         check_out_date = datetime.strptime(check_out, "%Y-%m-%d")
        
