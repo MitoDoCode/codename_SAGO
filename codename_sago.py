@@ -2,12 +2,13 @@ import json
 import os
 from datetime import datetime
 
-USER_DATA_FILE = 'slaves.json'
+USER_DATA_FILE = 'users.json'
 ROOMS_DATA_FILE = 'rooms.json'
 RESERVED_ROOMS_DATA_FILE = 'reservedrooms.json'
 
 
 sago_art = [
+    "                                       ",
     "|-------------------------------------|",
     "|  #####    ####    #####   #######   |",
     "| #     #  #     # #     #  #     #   |",
@@ -24,7 +25,6 @@ MainMenu = [
     "WELCOME TO SAGO HOW CAN WE HELP YOU",
     "----------1.LOGIN------------------",
     "----------2.SIGNUP-----------------",
-    "----------3.?????------------------",
 ]
 
 SubMenu = [
@@ -34,7 +34,7 @@ SubMenu = [
     "4. LOGOUT"
 ]
 
-RoomsizeMenu = ["Small Room", "Medium Room", "Large Room"]
+RoomsizeMenu = ["Small Room", "Medium Room", "Large Room\n"]
 
 START_DATE = datetime(2024, 1, 1)
 END_DATE = datetime(2024, 12, 31)
@@ -100,7 +100,7 @@ def delete_user_reserved_room(username):
     user_rooms = reserved_rooms.get(username, {})
 
     if not user_rooms:
-        print(f"No rooms reserved by {username} to delete.")
+        print(f"\n----No rooms reserved by {username} to delete----")
         return
 
     print("Your Reserved Rooms:")
@@ -131,7 +131,7 @@ def display_rooms(size_filter=None):
                 available_rooms.append(room_name)
                 print("---------------------------------------")
     else:
-        print("No room data found in rooms.json.")
+        print("----No room data found----")
     return available_rooms
 
 def reserve_room(username, room_name, check_in, check_out):
@@ -176,11 +176,13 @@ def login(username, password):
     slaves = load_users()
     if username in slaves:
         if slaves[username] == password:
-            return f"Welcome, {username}!"
+            return f"\nWelcome, {username}!"
         else:
             return ">>>>>Incorrect password!<<<<<"
     else:
+        print("\n")
         return ">>>>>User not found!<<<<<"
+        
 
 def generate_reservation_code():
     from random import randint
@@ -198,10 +200,10 @@ def display_all_rooms():
             print(f"  Size: {details['size']}")
             print("---------------------------------------")
     else:
-        print("No room data found in rooms.json.")
+        print("----No room data found----")
 
 def admin_room_console():
-    print("ADMIN ROOM CONSOLE")
+    print("ADD NEW ROOMS TO BE RENTED")
     room = input("Enter a Room Name: ")
     about_room = input("What is this room: ")
 
@@ -216,7 +218,7 @@ def admin_room_console():
     for i, size_option in enumerate(RoomsizeMenu, start=1):
         print(f"{i}. {size_option}")
 
-    size_choice = input("Enter the number of the size you want: ")
+    size_choice = input("\nEnter the number of the size you want: \n")
     if size_choice.isdigit() and 1 <= int(size_choice) <= len(RoomsizeMenu):
         selected_size = RoomsizeMenu[int(size_choice) - 1]
         add_room(room, about_room, price, selected_size)
@@ -232,6 +234,13 @@ def add_room(name, description, price, size):
     }
     save_rooms(rooms)
     print(f">>>>>Room '{name}' added successfully!<<<<<")
+    
+def is_valid_date(date_str):
+    try:    
+        datetime.strptime(date_str, "%Y-%m-%d")
+        return True
+    except ValueError:   
+        return False    
 
 def main_menu():
     while True:
@@ -241,10 +250,12 @@ def main_menu():
             print(guhit)
 
         number = input("Enter a number (1 or 2): ")
+        print("\n")
 
         if number == "1":
-            username = input("Enter your username: ")
-            password = input("Enter your password: ")
+            print(">>>>>LOGIN<<<<<\n")
+            username = input("Enter your Username: ")
+            password = input("Enter your Password: ")
             login_result = login(username, password)
             print(login_result)
 
@@ -252,7 +263,7 @@ def main_menu():
                 sub_menu(username)
         elif number == "2":
             username = input("Enter a username: ")
-            password = input("Enter a password: ")
+            password = input("Enter a password: \n")
             print(register(username, password))
         elif number == "Three":
             print("MONIKA:>6996 ADMIN CONSOLE")
@@ -267,10 +278,10 @@ def sub_menu(username):
         for option in SubMenu:
             print(option)
 
-        sub_choice = input("Enter a choice (1, 2, 3, or 4): ")
+        sub_choice = input("\nEnter a choice (1, 2, 3, or 4): \n")
 
         if sub_choice == "1":
-            print("Room reservation")
+            print("-----Room reservation-----")
             print("Select room size:")
             for i, size_option in enumerate(RoomsizeMenu, start=1):
                 print(f"{i}. {size_option}")
@@ -283,8 +294,16 @@ def sub_menu(username):
                 if available_rooms:
                     room_choice = input("Enter the name of the room you want to reserve: ")
                     if room_choice in available_rooms:
-                        check_in = input("Enter check-in date (YYYY-MM-DD): ")
-                        check_out = input("Enter check-out date (YYYY-MM-DD): ")
+                        while True:
+                            check_in = input("Enter check-in date (YYYY-MM-DD): ")
+                            if not is_valid_date(check_in):
+                                print("Invalid date format! Please use YYYY-MM-DD.")
+                                continue
+                            check_out = input("Enter check-out date (YYYY-MM-DD): ")
+                            if not is_valid_date(check_out):
+                                print("Invalid date format! Please use YYYY-MM-DD.")
+                                continue
+                            break  
                         reserve_room(username, room_choice, check_in, check_out)
                     else:
                         print(">>>>>INVALID ROOM CHOICE<<<<<")
@@ -297,12 +316,13 @@ def sub_menu(username):
             view_user_reserved_rooms(username)
 
         elif sub_choice == "3":
-            delete_user_reserved_room(username)  
+            delete_user_reserved_room(username)
+
         elif sub_choice == "4":
-            print("Log Out")
+            print("----Log Out success----")
             break
 
         else:
             print(">>>>>INVALID CHOICE<<<<<")
-            
+
 main_menu()
